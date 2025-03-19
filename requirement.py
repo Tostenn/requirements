@@ -3,6 +3,7 @@ from os.path import join
 from re import compile as compileRE
 from sys import stdlib_module_names
 from pkg_resources import working_set
+from alive_progress import alive_bar
 
 
 class Requirement:
@@ -43,12 +44,27 @@ class Requirement:
         installed_packages = {pkg.key: pkg.version for pkg in working_set}
         return {mod: installed_packages.get(mod) for mod in modules if installed_packages.get(mod)}
 
-    def generate_requirements_txt(self, **kwargs):
-        """Génère un fichier requirements.txt basé sur les modules utilisés dans le projet."""
+    def annimation(self):
+        """
+        Simule un chargement en fonction du nombre de fichiers à traiter.
+        """
+        files = self.get_python_files()
+        file_count = len(files)
+        
         all_imports = set()
         
-        for file in self.get_python_files():
-            all_imports.update(self.extract_imports(file))
+        with alive_bar(file_count, title="⚙️ Génération en cours...", bar="smooth", spinner="dots_waves") as bar:
+            for i,file in enumerate(files):
+                imports = self.extract_imports(file)
+                all_imports.update(imports)
+                bar()  # Met à jour la barre de progression
+
+        return all_imports
+
+    def generate_requirements_txt(self, **kwargs):
+        """Génère un fichier requirements.txt basé sur les modules utilisés dans le projet."""
+        all_imports = self.annimation()
+        
         
         third_party_modules = self.filter_third_party_modules(all_imports)
         module_versions = self.get_installed_versions(third_party_modules)
