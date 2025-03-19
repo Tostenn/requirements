@@ -6,13 +6,13 @@ from pkg_resources import working_set
 
 
 class Requirement:
-    def __init__(self):
-        pass
+    def __init__(self, directory:str):
+        self.directory = directory
     
-    def get_python_files(self, directory:str):
+    def get_python_files(self):
         """Récupère tous les fichiers Python dans le répertoire du projet."""
         python_files = []
-        for root, _, files in walk(directory):
+        for root, _, files in walk(self.directory):
             for file in files:
                 if file.endswith(".py"):
                     python_files.append(join(root, file))
@@ -43,17 +43,19 @@ class Requirement:
         installed_packages = {pkg.key: pkg.version for pkg in working_set}
         return {mod: installed_packages.get(mod) for mod in modules if installed_packages.get(mod)}
 
-    def generate_requirements_txt(self,directory):
+    def generate_requirements_txt(self, **kwargs):
         """Génère un fichier requirements.txt basé sur les modules utilisés dans le projet."""
         all_imports = set()
         
-        for file in self.get_python_files(directory):
+        for file in self.get_python_files():
             all_imports.update(self.extract_imports(file))
         
         third_party_modules = self.filter_third_party_modules(all_imports)
         module_versions = self.get_installed_versions(third_party_modules)
         
-        with open("requirements.txt", "w", encoding="utf-8") as f:
+        name = kwargs.get("file_name") or "requirements.txt"
+        
+        with open(name, "w", encoding="utf-8") as f:
             for mod, version in module_versions.items():
                 f.write(f"{mod}=={version}\n")
         
