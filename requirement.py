@@ -58,5 +58,3 @@ class Requirement:
         with open(name, "w", encoding="utf-8") as f:
             for mod, version in module_versions.items():
                 f.write(f"{mod}=={version}\n")
-        
-        print("✅ Fichier requirements.txt généré avec succès !")
