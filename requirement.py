@@ -56,8 +56,9 @@ class Requirement:
         with alive_bar(file_count, title="⚙️ Génération en cours...", bar="smooth", spinner="dots_waves") as bar:
             for i,file in enumerate(files):
                 imports = self.extract_imports(file)
+                bar.text(f"Analyse du fichier: {file}")
                 all_imports.update(imports)
-                bar()  # Met à jour la barre de progression
+                bar()  
 
         return all_imports
 
@@ -69,7 +70,7 @@ class Requirement:
         third_party_modules = self.filter_third_party_modules(all_imports)
         module_versions = self.get_installed_versions(third_party_modules)
         
-        name = kwargs.get("file_name") or "requirements.txt"
+        name = kwargs.get("file_name")
         
         with open(name, "w", encoding="utf-8") as f:
             for mod, version in module_versions.items():
