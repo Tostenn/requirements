@@ -1,3 +1,6 @@
+![logo](/image/logo.png)
+
+![Python](https://img.shields.io/pypi/pyversions/quizen)
 # Requirements
 
 Qui n'a jamais connu cette galère ? 😵‍🚫 Après avoir terminé un projet Python, il faut lister toutes les bibliothèques utilisées, retrouver leurs versions exactes et enfin générer un `requirements.txt` propre. Et bien sûr, il y a toujours un package manquant ou une version incorrecte... Bref, une vraie prise de tête ! 😤
