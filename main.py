@@ -35,14 +35,22 @@ directory = options.directory
 if not options.no_logo:
     print(LOGO)
 
-req = Requirement(directory)
-
-files = req.get_python_files(
+req = Requirement(
+    directory,
+    file_name=options.file_name,
+    verbose=options.verbose,
     ignore_files=options.ignore_files,
     inclure_fichiers=options.inclure_fichiers,
     inclure_me=options.inclure_me,
-    inclure_me_files=[__file__]
+    inclure_me_files=[__file__],
+    ignore_modules=options.ignore_modules,
+    inclure_modules=options.inclure_modules,
+    case_sensitive=options.case_sensitive,
+    matchs_name_modules=options.matchs_name_modules,
+    inclure_modules_no_version=options.inclure_modules_no_version,
 )
+
+files = req.get_python_files()
 
 if not options.no_annimation:
     
@@ -58,52 +66,31 @@ if not options.no_annimation:
 
     third_party = None
     funcs = {
-        "exclusion des module natif": lambda: req.filter_third_party_modules(
-            imports,
-            case_sensitive=options.case_sensitive
-        ),
-        "correspondance des nom des module": lambda: req.match_moddules_names(third_party, case_sensitive=options.case_sensitive),
-        "récuperation des version": lambda: req.get_installed_versions(
-            third_party,
-            inclure_modules_no_version=options.inclure_modules_no_version,
-            ignore_modules=options.ignore_modules,
-        ),
-        f"sauvegarde du fichier {options.file_name}": lambda: req.save_requirements_txt(file_name=options.file_name, module_versions=third_party)
+        "exclusion des module natif": req.filter_third_party_modules,
+        "correspondance des nom des module": req.match_moddules_names,
+        "récuperation des version": req.get_installed_versions,
+        f"sauvegarde du fichier {req.file_name}": req.save_requirements_txt
     }
     
     with alive_bar(len(funcs), title="Génération du fichier requirements.txt") as bar:
         for func in funcs:
-            third_party = funcs[func]()
+            third_party = funcs[func](imports)
             if options.verbose:
                 print(f"✅ {func}")
                 
             bar.text = f"{func}"
             bar()
 else:
-    imports = req.extract_imports(
-        files,
-        ignore_modules=options.ignore_modules,
-        inclure_modules=options.inclure_modules,
-    )
+    imports = req.extract_imports(files)
 
-    third_party = req.filter_third_party_modules(
-        imports,
-        case_sensitive=options.case_sensitive,
-    )
+    third_party = req.filter_third_party_modules(imports)
 
     if options.matchs_name_modules:
-        third_party = req.match_moddules_names(
-            third_party,
-            case_sensitive=options.case_sensitive
-        )
+        third_party = req.match_moddules_names(third_party)
         
-    installed_versions = req.get_installed_versions(
-        third_party,
-        inclure_modules_no_version=options.inclure_modules_no_version,
-        ignore_modules=options.ignore_modules,
-    )
+    installed_versions = req.get_installed_versions(third_party)
 
-    req.save_requirements_txt(file_name=options.file_name, module_versions=installed_versions)
+    req.save_requirements_txt(module_versions=installed_versions)
 # print(installed_versions, third_party)
 
 # req.generate_requirements_txt(file_name=options.file_name)
