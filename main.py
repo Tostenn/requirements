@@ -5,79 +5,96 @@ from os import getcwd
 from rich import print
 from alive_progress import alive_bar
 
-parser = ArgumentParser()
+# Initialize argument parser
+parser = ArgumentParser(description="Automatically generate a requirements.txt file for your project.")
 
-parser.add_argument("directory", nargs="?", help="Chemin du dossier à analyser", default=getcwd())
+# Directory argument
+parser.add_argument(
+    "directory", nargs="?", default=getcwd(),
+    help="Path to the directory to scan. Defaults to the current working directory."
+)
 
-parser.add_argument("-f", "--file-name", dest="file_name", help="Nom du fichier requirements.txt à générer", metavar="FILE_NAME", default="requirements.txt")
+# Output file argument
+parser.add_argument(
+    "-f", "--file-name", dest="file_name", metavar="FILE_NAME", default="requirements.txt",
+    help="Specify the name of the generated requirements file. Default: requirements.txt"
+)
 
-parser.add_argument("--ignore-files", help="Fichiers à ignorer", nargs="+", default=[])
-parser.add_argument("--inclure-fichiers", help="Fichiers à inclure", nargs="+", default=[])
-parser.add_argument("--inclure-me", help="Inclure le module actuel", action="store_true")
+# File filtering options
+parser.add_argument("--ignore-files", nargs="+", default=[], help="List of specific files to ignore during analysis.")
+parser.add_argument("--include-files", nargs="+", default=[], help="List of specific files to include in the analysis.")
+parser.add_argument("--include-self", action="store_true", help="Include the current script in the analysis.")
 
-parser.add_argument("--ignore-modules", help="Modules à ignorer", nargs="+", default=[])
-parser.add_argument("--inclure-modules", help="Modules à inclure", nargs="+", default=[])
+# Module filtering options
+parser.add_argument("--ignore-modules", nargs="+", default=[], help="List of modules to exclude from the requirements file.")
+parser.add_argument("--include-modules", nargs="+", default=[], help="List of modules to explicitly include in the requirements file.")
+parser.add_argument("--include-modules-no-version", action="store_true", help="Include modules without specifying their version.")
 
-parser.add_argument("-v", "--verbose", action="store_true", help="Activer le mode détaillé")
-parser.add_argument("--version", action="version", version="%(prog)s 1.0")
-parser.add_argument("--no-logo", action="store_true", help="Désactiver le logo")
+# Display options
+parser.add_argument("-v", "--verbose", action="store_true", help="Enable detailed output (verbose mode).")
+parser.add_argument("--version", action="version", version="%(prog)s 1.0", help="Display the program version and exit.")
+parser.add_argument("--no-logo", action="store_true", help="Disable the logo display.")
 
-parser.add_argument("--no-annimation", action="store_true", help="Désactiver l'animation de chargement")
-parser.add_argument("--case-sensitive", action="store_true", help="Activer la sensibilité à la casse")
-parser.add_argument("--matchs-name-modules", action="store_true", help="Afficher les modules correspondants")
+# Processing options
+parser.add_argument("--no-animation", action="store_true", help="Disable loading animations.")
+parser.add_argument("--case-sensitive", action="store_true", help="Enable case-sensitive module matching.")
+parser.add_argument("--match-module-names", action="store_true", help="Show modules that match detected imports.")
 
-parser.add_argument("--inclure-modules-no-version", help="Modules à inclure sans version",action="store_true")
-
-
+# Parse command-line arguments
 options = parser.parse_args()
 directory = options.directory
 
+# Display logo if not disabled
 if not options.no_logo:
     print(LOGO)
 
+# Initialize Requirement instance
 req = Requirement(
     directory,
     file_name=options.file_name,
     verbose=options.verbose,
     ignore_files=options.ignore_files,
-    inclure_fichiers=options.inclure_fichiers,
-    inclure_me=options.inclure_me,
-    inclure_me_files=[__file__],
+    include_files=options.include_files,
+    include_self=options.include_self,
+    inclure_self_files=[__file__],
     ignore_modules=options.ignore_modules,
-    inclure_modules=options.inclure_modules,
+    include_modules=options.include_modules,
     case_sensitive=options.case_sensitive,
-    matchs_name_modules=options.matchs_name_modules,
-    inclure_modules_no_version=options.inclure_modules_no_version,
+    matchs_name_modules=options.match_module_names,
+    include_modules_no_version=options.include_modules_no_version,
 )
 
-if not options.no_annimation:
-    
+# Perform the analysis with or without animations
+if not options.no_animation:
     files = req.get_python_files()
     imports = set()
-    with alive_bar(len(files), title="Analyse des fichiers Python") as bar:
+
+    # Step 1: Scan Python files
+    with alive_bar(len(files), title="🔍 Scanning Python files...") as bar:
         for file in files:
-                
             imports.update(req.extract_import(file))
-            bar.text = f"Analyse du fichier: {file}"
+            bar.text = f"Processing file: {file}"
             bar()
 
-    third_party = None
-    funcs = {
-        "exclusion des module natif": req.filter_third_party_modules,
-        "correspondance des nom des module": req.match_moddules_names,
-        "récuperation des version": req.get_installed_versions,
-        f"sauvegarde du fichier {req.file_name}": req.save_requirements_txt
+    # Step 2: Generate requirements.txt
+    processing_steps = {
+        "Excluding standard library modules": req.filter_third_party_modules,
     }
     
-    with alive_bar(len(funcs), title="Génération du fichier requirements.txt") as bar:
-        for func in funcs:
+    if options.match_module_names:
+        processing_steps["Matching module names"] = req.match_modules_names
+    
+    processing_steps["Retrieving installed versions"] = req.get_installed_versions
+    processing_steps["Saving requirements file"] = req.save_requirements_txt
+
+    with alive_bar(len(processing_steps), title="⚙️ Generating requirements.txt...") as bar:
+        for step, function in processing_steps.items():
             if options.verbose:
-                print(func)
-            third_party = funcs[func](imports)
-                
-            bar.text = f"{func}"
+                print(f"🔹 {step}...")
+            imports = function(imports)
+            bar.text = step
             bar()
 else:
     req.generate_requirements_txt()
 
-print("✅ Fichier requirements.txt généré avec succès !")
+print(f"\n✅ [green]{req.file_name} file successfully generated![/green] 🎉")
