@@ -135,15 +135,76 @@ class Requirement:
                 
         return module_versions
 
+    def filter_third_party_modules(self, imports:list[str]):
+        """Filtre les modules tiers (exclut les modules standards de Python)."""
+        standard_libs = stdlib_module_names  # Liste des modules natifs de Python
+        
+        standard_libs = {mod.lower():mod for mod in standard_libs} if not self.case_sensitive else set(standard_libs)
+        
+        third_party = set()
+        for mod in imports:
+            if not self.case_sensitive:
+                mod = mod.lower()
+                
+            if mod not in standard_libs:
+                third_party.add(mod)
+                
+                if self.verbose:
+                    self.verbose_output(title='third party',message=f"{mod}")
+                
+        return third_party
+    
+    def match_modules_names(self,modules:set[str]):
+        """Retourne les noms des modules."""
+        names_mod = list(self.installed_packages.keys())
+        
+        modules = list(modules)
+        
+        for mod_index in range(len(modules)):
+            mod = modules[mod_index]
+            if not self.case_sensitive:
+                mod = mod.lower()
+            
+            for _,name in enumerate(names_mod):
+                if not self.case_sensitive:
+                    name = name.lower()
+                    
+                if '_' in mod or '-' in mod:
+                    if name in [mod.replace("_", "-"), mod.replace("-", "_")]:
+                        modules[mod_index] = names_mod[_]
+                        
+                        if self.verbose:
+                            self.verbose_output(title='correspondance',message=f"{mod} -> {names_mod[_]}")
+                        break
+                    
+                if mod.capitalize() in name:
+                    modules[mod_index] = names_mod[_]
+                    
+                    if self.verbose:
+                        self.verbose_output(title='correspondance',message=f"{mod} -> {names_mod[_]}")
+                    break
+                
+                if mod in name:
+                    modules[mod_index] = names_mod[_]
+                    
+                    if self.verbose:
+                        self.verbose_output(title='correspondance',message=f"{mod} -> {names_mod[_]}")
+                    break
+        return modules
+            
     def generate_requirements_txt(self):
         """Generates the requirements.txt file based on used modules."""
         files = self.get_python_files()
         all_imports = self.extract_imports(files)
         third_party_modules = self.filter_third_party_modules(all_imports)
+        
+        if self.matchs_name_modules:
+            third_party_modules = self.match_modules_names(third_party_modules)
+        
         module_versions = self.get_installed_versions(third_party_modules)
         self.save_requirements_txt(module_versions)
 
-    def save_requirements_txt(self, module_versions):
+    def save_requirements_txt(self, module_versions:dict):
         """Saves detected modules and their versions into a requirements.txt file."""
         try:
             with open(self.file_name, "w", encoding="utf-8") as f:

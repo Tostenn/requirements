@@ -79,19 +79,22 @@ if not options.no_animation:
     # Step 2: Generate requirements.txt
     processing_steps = {
         "Excluding standard library modules": req.filter_third_party_modules,
-        "Matching module names": req.match_moddules_names,
-        "Retrieving installed versions": req.get_installed_versions,
-        f"Saving requirements file: {req.file_name}": req.save_requirements_txt
     }
+    
+    if options.match_module_names:
+        processing_steps["Matching module names"] = req.match_modules_names
+    
+    processing_steps["Retrieving installed versions"] = req.get_installed_versions
+    processing_steps["Saving requirements file"] = req.save_requirements_txt
 
     with alive_bar(len(processing_steps), title="⚙️ Generating requirements.txt...") as bar:
         for step, function in processing_steps.items():
             if options.verbose:
                 print(f"🔹 {step}...")
-            function(imports)
+            imports = function(imports)
             bar.text = step
             bar()
 else:
     req.generate_requirements_txt()
 
-print("\n✅ [green]requirements.txt file successfully generated![/green] 🎉")
+print(f"\n✅ [green]{req.file_name} file successfully generated![/green] 🎉")
