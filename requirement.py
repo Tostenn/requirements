@@ -41,25 +41,33 @@ class Requirement:
             
         return python_files
     
-    def extract_import(self, file_path):
+    def extract_import(self, file_path, **kwargs):
         """Extrait les noms des modules importés dans un fichier Python."""
         import_pattern = compileRE(r"^\s*(?:import|from) (\S+)")
         imports = set()
+        
+        ignore_modules = kwargs.get("ignore_modules", [])
+        inclure_modules = kwargs.get("inclure_modules", [])
         
         with open(file_path, "r", encoding="utf-8") as f:
             for line in f:
                 match = import_pattern.match(line)
                 if match:
                     module = match.group(1).split(".")[0]  # Prend uniquement le module principal
+                    
+                    if module in ignore_modules:
+                        continue
                     imports.add(module)
         
+        if inclure_modules:
+            imports.update(inclure_modules)
         return imports
     
-    def extract_imports(self, files):
+    def extract_imports(self, files, **kwargs):
         """Extrait les noms des modules importés dans une liste de fichiers Python."""
         all_imports = set()
         for file in files:
-            imports = self.extract_import(file)
+            imports = self.extract_import(file, **kwargs)
             all_imports.update(imports)
         return all_imports
     
@@ -70,23 +78,14 @@ class Requirement:
         
         standard_libs = {mod.lower():mod for mod in standard_libs} if not case_sensitive else set(standard_libs)
         
-        ignore_modules = kwargs.get("ignore_modules", [])
-        inclure_modules = kwargs.get("inclure_modules", [])
-        
         third_party = set()
         for mod in imports:
             if not case_sensitive:
                 mod = mod.lower()
                 
             if mod not in standard_libs:
-                if mod in ignore_modules:
-                    continue
-                
                 third_party.add(standard_libs.get(mod, mod))
-        
-        if inclure_modules:
-            third_party.update(inclure_modules)
-        
+                
         return third_party
     
     def match_moddules_names(self,modules:set[str], **kwargs):
@@ -122,17 +121,12 @@ class Requirement:
         """Récupère les versions des modules installés."""
         
         inclure_modules_no_version = kwargs.get("inclure_modules_no_version", False)
-        inclure_modules = kwargs.get("inclure_modules", [])
         ignore_modules = kwargs.get("ignore_modules", [])
         
         module_versions = {}
         
         for mod in modules:
             if mod in ignore_modules:
-                continue
-            
-            if mod in inclure_modules:
-                module_versions[mod] = self.installed_packages.get(mod)
                 continue
             
             if mod in self.installed_packages:
@@ -155,7 +149,7 @@ class Requirement:
         
         self.save_requirements_txt(name, module_versions)
 
-    def save_requirements_txt(self, file_name:str, module_versions:dict, **kwargs):
+    def save_requirements_txt(self, file_name:str, module_versions:dict):
         """Sauvegarde les modules dans un fichier requirements.txt."""
         
         try:

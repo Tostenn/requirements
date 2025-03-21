@@ -4,12 +4,15 @@ from logo import LOGO
 from os import getcwd
 from rich import print
 from alive_progress import alive_bar
+from logging import info
+from rich.logging import RichHandler
+from time import sleep
 
 parser = ArgumentParser()
 
-parser.add_argument("-f", "--file-name", dest="file_name", help="Nom du fichier requirements.txt à générer", metavar="FILE_NAME", default="requirements.txt")
-
 parser.add_argument("directory", nargs="?", help="Chemin du dossier à analyser", default=getcwd())
+
+parser.add_argument("-f", "--file-name", dest="file_name", help="Nom du fichier requirements.txt à générer", metavar="FILE_NAME", default="requirements.txt")
 
 parser.add_argument("--ignore-files", help="Fichiers à ignorer", nargs="+", default=[])
 parser.add_argument("--inclure-fichiers", help="Fichiers à inclure", nargs="+", default=[])
@@ -43,32 +46,62 @@ files = req.get_python_files(
     inclure_me=options.inclure_me,
     inclure_me_files=[__file__]
 )
+
+if not options.no_annimation:
     
-# print(files, options.ignore_files, options.inclure_fichiers)
+    imports = set()
+    with alive_bar(len(files), title="Analyse des fichiers Python") as bar:
+        for file in files:
+            imports.update(req.extract_import(file))
+            bar.text = f"Analyse du fichier: {file}"
+            bar()
 
-imports = req.extract_imports(files)
-
-third_party = req.filter_third_party_modules(
-    imports,
-    case_sensitive=options.case_sensitive,
-    ignore_modules=options.ignore_modules,
-    inclure_modules=options.inclure_modules,
-)
-
-if options.matchs_name_modules:
-    third_party = req.match_moddules_names(
-        third_party,
-        case_sensitive=options.case_sensitive
+    third_party = None
+    funcs = {
+        "exclusion des module natif": lambda: req.filter_third_party_modules(
+            imports,
+            case_sensitive=options.case_sensitive
+        ),
+        "correspondance des nom des module": lambda: req.match_moddules_names(third_party, case_sensitive=options.case_sensitive),
+        "récuperation des version": lambda: req.get_installed_versions(
+            third_party,
+            inclure_modules_no_version=options.inclure_modules_no_version,
+            ignore_modules=options.ignore_modules,
+        ),
+        f"sauvegarde du fichier {options.file_name}": lambda: req.save_requirements_txt(file_name=options.file_name, module_versions=third_party)
+    }
+    
+    with alive_bar(len(funcs), title="Génération du fichier requirements.txt") as bar:
+        for func in funcs:
+            third_party = funcs[func]()
+            print(f"✅ {func}")
+            bar.text = f"{func}"
+            bar()
+else:
+    imports = req.extract_imports(
+        files,
+        ignore_modules=options.ignore_modules,
+        inclure_modules=options.inclure_modules
     )
-    
-installed_versions = req.get_installed_versions(
-    third_party,
-    inclure_modules_no_version=options.inclure_modules_no_version,
-    ignore_modules=options.ignore_modules,
-    inclure_modules=options.inclure_modules
-)
 
-req.save_requirements_txt(file_name=options.file_name, module_versions=installed_versions)
+    third_party = req.filter_third_party_modules(
+        imports,
+        case_sensitive=options.case_sensitive,
+    )
+
+    if options.matchs_name_modules:
+        third_party = req.match_moddules_names(
+            third_party,
+            case_sensitive=options.case_sensitive
+        )
+        
+    installed_versions = req.get_installed_versions(
+        third_party,
+        inclure_modules_no_version=options.inclure_modules_no_version,
+        ignore_modules=options.ignore_modules,
+    )
+
+    req.save_requirements_txt(file_name=options.file_name, module_versions=installed_versions)
 # print(installed_versions, third_party)
 
 # req.generate_requirements_txt(file_name=options.file_name)
