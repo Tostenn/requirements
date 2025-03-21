@@ -176,6 +176,9 @@ class Requirement:
         
         all_imports = self.extract_imports(files)
         
+        if self.matchs_name_modules:
+            all_imports = self.match_moddules_names(all_imports)
+        
         third_party_modules = self.filter_third_party_modules(all_imports)
         module_versions = self.get_installed_versions(third_party_modules)
         

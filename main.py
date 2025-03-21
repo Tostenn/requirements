@@ -50,10 +50,9 @@ req = Requirement(
     inclure_modules_no_version=options.inclure_modules_no_version,
 )
 
-files = req.get_python_files()
-
 if not options.no_annimation:
     
+    files = req.get_python_files()
     imports = set()
     with alive_bar(len(files), title="Analyse des fichiers Python") as bar:
         for file in files:
@@ -79,18 +78,6 @@ if not options.no_annimation:
             bar.text = f"{func}"
             bar()
 else:
-    imports = req.extract_imports(files)
-
-    third_party = req.filter_third_party_modules(imports)
-
-    if options.matchs_name_modules:
-        third_party = req.match_moddules_names(third_party)
-        
-    installed_versions = req.get_installed_versions(third_party)
-
-    req.save_requirements_txt(module_versions=installed_versions)
-# print(installed_versions, third_party)
-
-# req.generate_requirements_txt(file_name=options.file_name)
+    req.generate_requirements_txt()
 
 print("✅ Fichier requirements.txt généré avec succès !")
