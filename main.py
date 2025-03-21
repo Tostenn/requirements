@@ -4,9 +4,6 @@ from logo import LOGO
 from os import getcwd
 from rich import print
 from alive_progress import alive_bar
-from logging import info
-from rich.logging import RichHandler
-from time import sleep
 
 parser = ArgumentParser()
 
@@ -52,6 +49,9 @@ if not options.no_annimation:
     imports = set()
     with alive_bar(len(files), title="Analyse des fichiers Python") as bar:
         for file in files:
+            if options.verbose:
+                print(f"traitement: [green bold]{file}[/green bold]")
+                
             imports.update(req.extract_import(file))
             bar.text = f"Analyse du fichier: {file}"
             bar()
@@ -74,14 +74,16 @@ if not options.no_annimation:
     with alive_bar(len(funcs), title="Génération du fichier requirements.txt") as bar:
         for func in funcs:
             third_party = funcs[func]()
-            print(f"✅ {func}")
+            if options.verbose:
+                print(f"✅ {func}")
+                
             bar.text = f"{func}"
             bar()
 else:
     imports = req.extract_imports(
         files,
         ignore_modules=options.ignore_modules,
-        inclure_modules=options.inclure_modules
+        inclure_modules=options.inclure_modules,
     )
 
     third_party = req.filter_third_party_modules(
