@@ -3,7 +3,7 @@ from argparse import ArgumentParser
 from logo import LOGO
 from os import getcwd
 from rich import print
-
+from alive_progress import alive_bar
 
 parser = ArgumentParser()
 
@@ -32,7 +32,8 @@ parser.add_argument("--inclure-modules-no-version", help="Modules à inclure san
 options = parser.parse_args()
 directory = options.directory
 
-print(LOGO)
+if not options.no_logo:
+    print(LOGO)
 
 req = Requirement(directory)
 
