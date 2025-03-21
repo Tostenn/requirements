@@ -4,6 +4,7 @@ from re import compile as compileRE
 from sys import stdlib_module_names
 from pkg_resources import working_set
 from pathlib import Path
+from rich import print
 
 class Requirement:
     def __init__(self, directory:str, **kwargs):
@@ -11,47 +12,60 @@ class Requirement:
         self.file_name = kwargs.get("file_name", "requirements.txt")
         self.verbose = kwargs.get("verbose", False)
         self.ignore_files = kwargs.get("ignore_files", None)
-        self.inclure_fichiers = kwargs.get("inclure_fichiers", None)
-        self.inclure_me = kwargs.get("inclure_me", False)
-        self.inclure_me_files = kwargs.get("inclure_me_files", [])
+        self.include_files = kwargs.get("include_files", None)
+        self.include_self = kwargs.get("include_self", False)
+        self.inclure_self_files = kwargs.get("inclure_self_files", [])
         self.ignore_modules = kwargs.get("ignore_modules", [])
-        self.inclure_modules = kwargs.get("inclure_modules", [])
+        self.include_modules = kwargs.get("include_modules", [])
         self.case_sensitive = kwargs.get("case_sensitive", False)
         self.matchs_name_modules = kwargs.get("matchs_name_modules", False)
-        self.inclure_modules_no_version = kwargs.get("inclure_modules_no_version", False)
+        self.include_modules_no_version = kwargs.get("include_modules_no_version", False)
         self.installed_packages = {pkg.key: pkg.version for pkg in working_set}
         
     def get_python_files(self):
         """Récupère tous les fichiers Python dans le répertoire du projet."""
         python_files = []
         
-        if self.inclure_me:
-            self.inclure_me_files = [*self.inclure_me_files, __file__]
+        if self.include_self:
+            self.inclure_self_files = [*self.inclure_self_files, __file__]
         
         for root, _, files in walk(self.directory):
             for file in files:
                 if file.endswith(".py"):
                     if self.ignore_files and file in self.ignore_files:
                         if self.verbose:
-                            print(f"ignorer: {file}")
+                            self.verbose_output(title='ignorer',message=f"{file}")
                         continue
                     
                     python_files.append(join(root, file))
         
-        if self.inclure_fichiers:
-            for file in self.inclure_fichiers:
+        if self.include_files:
+            for file in self.include_files:
                 if Path(file).is_file():
                     python_files.append(file)
                     if self.verbose:
-                        print(f"ajouter: {file}")
+                        self.verbose_output(title='ajouter',message=f"{file}")
                     
-        if self.inclure_me:
-            python_files.extend(self.inclure_me_files)
+        if self.include_self:
+            python_files.extend(self.inclure_self_files)
             if self.verbose:
-                print("inclure me")
+                self.verbose_output(title='ajouter',message=f"all files include")
             
         return python_files
     
+    def verbose_output(self,title, message:str, etat:str="info"):
+        """Affiche un message si le mode verbose est activé."""
+        if etat == "error":
+            print(f"[bold red]{title}:[/bold red] {message}")
+        elif etat == "warning":
+            print(f"[bold yellow]{title}:[/bold yellow] {message}")
+        elif etat == "info":
+            print(f"[bold blue]{title}:[/bold blue] {message}")
+        elif etat == "success":
+            print(f"[bold green]{title}:[/bold green] {message}")
+        else:
+            print(f"{message}")
+            
     def extract_import(self, file_path):
         """Extrait les noms des modules importés dans un fichier Python."""
         import_pattern = compileRE(r"^\s*(?:import|from) (\S+)")
@@ -70,10 +84,10 @@ class Requirement:
                     
                     imports.add(module)
                     if self.verbose:
-                        print(f"importé: {module}")
+                        self.verbose_output(title='found module',message=f"{module}")
         
-        if self.inclure_modules:
-            imports.update(self.inclure_modules)
+        if self.include_modules:
+            imports.update(self.include_modules)
             if self.verbose:
                 print("inclure modules")
             
@@ -84,7 +98,8 @@ class Requirement:
         all_imports = set()
         for file in files:
             if self.verbose:
-                print(f"traitement: {file}")
+                self.verbose_output(title='file',message=f"{file}")
+                
             imports = self.extract_import(file)
             all_imports.update(imports)
         return all_imports
@@ -101,10 +116,10 @@ class Requirement:
                 mod = mod.lower()
                 
             if mod not in standard_libs:
-                third_party.add(standard_libs.get(mod, mod))
+                third_party.add(mod)
                 
                 if self.verbose:
-                    print(f"tier: {mod}")
+                    self.verbose_output(title='third party',message=f"{mod}")
                 
         return third_party
     
@@ -128,21 +143,21 @@ class Requirement:
                         modules[mod_index] = names_mod[_]
                         
                         if self.verbose:
-                            print(f"correspondance: {mod} -> {names_mod[_]}")
+                            self.verbose_output(title='correspondance',message=f"{mod} -> {names_mod[_]}")
                         break
                     
                 if mod.capitalize() in name:
                     modules[mod_index] = names_mod[_]
                     
                     if self.verbose:
-                        print(f"correspondance: {mod} -> {names_mod[_]}")
+                        self.verbose_output(title='correspondance',message=f"{mod} -> {names_mod[_]}")
                     break
                 
                 if mod in name:
                     modules[mod_index] = names_mod[_]
                     
                     if self.verbose:
-                        print(f"correspondance: {mod} -> {names_mod[_]}")
+                        self.verbose_output(title='correspondance',message=f"{mod} -> {names_mod[_]}")
                     break
         return modules
             
@@ -154,19 +169,19 @@ class Requirement:
         for mod in modules:
             if mod in self.ignore_modules:
                 if self.verbose:
-                    print(f"ignorer: {mod}")
+                    self.verbose_output(title='ignorer',message=f"{mod}")
                 continue
             
             if mod in self.installed_packages:
                 module_versions[mod] = self.installed_packages.get(mod)
                 
                 if self.verbose:
-                    print(f"version: {mod} -> {self.installed_packages.get(mod)}")
-            elif self.inclure_modules_no_version:
+                    self.verbose_output(title='version',message=f"{mod} -> {self.installed_packages.get(mod)}")
+            elif self.include_modules_no_version:
                 module_versions[mod] = "0.0.0"
                 
                 if self.verbose:
-                    print(f"version: {mod} -> 0.0.0")
+                    self.verbose_output(title='version-include',message=f"{mod} -> 0.0.0")
                 
         return module_versions
 
