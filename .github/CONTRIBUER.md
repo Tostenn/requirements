@@ -1,48 +1,47 @@
-# Contribuer au projet Requirements
+# Contributing to the Requirements Project  
 
-Merci de votre intérêt pour ce projet ! Toute contribution est la bienvenue, que ce soit en ajoutant du code, en signalant des problèmes ou en testant les fonctionnalités. 🚀
+Thank you for your interest in this project! Any contribution is welcome, whether it's adding code, reporting issues, or testing features. 🚀  
 
-## Comment contribuer ?
+## How to Contribute?  
 
-### 1. Améliorer le code 💻
+### 1. Improve the Code 💻  
 
-1. **Forkez** ce dépôt.
-2. **Créez une branche** pour votre fonctionnalité ou correction :
+1. **Fork** this repository.  
+2. **Create a branch** for your feature or fix:  
    ```sh
-   git checkout -b feature/ma-fonctionnalite
-   ```
-3. **Faites vos modifications** et assurez-vous qu'elles sont bien testées.
-4. **Commitez vos modifications** avec un message clair :
+   git checkout -b feature/my-feature
+   ```  
+3. **Make your changes** and ensure they are properly tested.  
+4. **Commit your changes** with a clear message:  
     ```
-    <type>[étendue optionnelle]: <description>
-    [corps optionnel]
-    [pied optionnel]
-    ```
-5. **Poussez votre branche** :
+    <type>[optional scope]: <description>
+    [optional body]
+    [optional footer]
+    ```  
+5. **Push your branch**:  
    ```sh
-   git push origin feature/ma-fonctionnalite
-   ```
-6. **Ouvrez une Pull Request** et expliquez vos changements.
+   git push origin feature/my-feature
+   ```  
+6. **Open a Pull Request** and explain your changes.  
 
-### 2. Tester et signaler des bugs 🐛
+### 2. Test and Report Bugs 🐛  
 
-Si vous rencontrez un problème ou souhaitez suggérer une amélioration, ouvrez une issue sur GitHub :
-👉 [Signaler un bug ou suggérer une fonctionnalité](https://github.com/Tostenn/requirements/issues/new)
+If you encounter an issue or want to suggest an improvement, open an issue on GitHub:  
+👉 [Report a bug or suggest a feature](https://github.com/Tostenn/requirements/issues/new)  
 
-Essayez d'être aussi précis que possible :
-- Décrivez le problème ou la fonctionnalité souhaitée.
-- Ajoutez des captures d'écran ou des logs si nécessaire.
-- Indiquez votre environnement (version Python, OS, etc.).
+Try to be as specific as possible:  
+- Describe the problem or the requested feature.  
+- Add screenshots or logs if necessary.  
+- Provide details about your environment (Python version, OS, etc.).  
 
-## Bonnes pratiques 📌
+## Best Practices 📌  
 
-- **Code propre** : Assurez-vous que votre code est bien organisé et documenté.
-- **Respect des conventions** : Suivez les bonnes pratiques Python (PEP8).
-- **Tests** : Si possible, ajoutez des tests pour vérifier le bon fonctionnement de vos modifications.
+- **Clean Code**: Ensure your code is well-structured and documented.  
+- **Follow Conventions**: Stick to Python best practices (PEP8).  
+- **Testing**: If possible, add tests to verify the functionality of your changes.  
 
-## Code de conduite 🤝
+## Code of Conduct 🤝  
 
-Nous encourageons un environnement respectueux et constructif. Consultez le fichier [CODE_OF_CONDUCT](CODE_OF_CONDUCT.md) pour plus d'informations.
+We promote a respectful and constructive environment. Please refer to the [CODE_OF_CONDUCT](CODE_OF_CONDUCT.md) file for more information.  
 
-Merci pour votre aide et votre enthousiasme ! 🎉
-
+Thank you for your help and enthusiasm! 🎉

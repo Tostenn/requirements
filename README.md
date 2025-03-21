@@ -1,97 +1,96 @@
 ![logo](/image/logo.png)
 
-![Python](https://img.shields.io/pypi/pyversions/quizen)
-# Requirements
+![Python](https://img.shields.io/pypi/pyversions/quizen)  
+# Requirements  
 
-Qui n'a jamais connu cette galère ? 😵‍🚫 Après avoir terminé un projet Python, il faut lister toutes les bibliothèques utilisées, retrouver leurs versions exactes et enfin générer un `requirements.txt` propre. Et bien sûr, il y a toujours un package manquant ou une version incorrecte... Bref, une vraie prise de tête ! 😤
+Who hasn’t struggled with this? 😵‍🚫 After finishing a Python project, you have to list all the libraries used, find their exact versions, and finally generate a clean `requirements.txt`. And of course, there's always a missing package or an incorrect version... A real headache! 😤  
 
-Mais ne vous inquiétez plus ! Requirements est là pour vous sauver. 🦸‍♂️ Cet outil scanne automatiquement votre projet, identifie les modules importés, vérifie les versions installées et génère un `requirements.txt` parfait en un rien de temps. ⏳✨
+But don't worry anymore! Requirements is here to save you. 🦸‍♂️ This tool automatically scans your project, identifies imported modules, checks installed versions, and generates a perfect `requirements.txt` in no time. ⏳✨  
 
-Fini le casse-tête, place à l'efficacité ! 🚀
+No more hassle, just efficiency! 🚀  
 
----
+---  
 
-## 🎯 Installation
-
+## 🎯 Installation  
 
 ```sh
-git clone https://github.com/votre-repo/requirements.git
+git clone https://github.com/your-repo/requirements.git
 cd requirements
 pip install -r requirements.txt
-```
+```  
 
----
+---  
 
-## ⚙️ Utilisation
+## ⚙️ Usage  
 
-Exécutez simplement la commande suivante dans le répertoire de votre projet :
+Simply run the following command in your project directory:  
 
 ```sh
 # requirements/
-python main.py <dossier_du_projet>
-```
+python main.py <project_folder>
+```  
 
-Par défaut, il génère un fichier `requirements.txt` en analysant tous les fichiers Python du dossier.
+By default, it generates a `requirements.txt` file by analyzing all Python files in the folder.  
 
-### 🔧 Options Disponibles
+### 🔧 Available Options  
 
 | Option | Description |
 |--------|-------------|
-| `directory` | Spécifie le dossier à scanner (par défaut : dossier courant). |
-| `-f`, `--file-name` | Nom du fichier requirements généré (par défaut : `requirements.txt`). |
-| `--ignore-files` | Liste des fichiers à ignorer. |
-| `--include-files` | Liste des fichiers à inclure dans l'analyse. |
-| `--include-self` | Inclut le script actuel dans l'analyse. |
-| `--ignore-modules` | Liste des modules à exclure. |
-| `--include-modules` | Liste des modules à ajouter manuellement. |
-| `--include-modules-no-version` | Inclut les modules sans spécifier leur version. |
-| `-v`, `--verbose` | Active le mode verbeux (détails affichés pendant l'exécution). |
-| `--version` | Affiche la version de Requirements. |
-| `--no-logo` | Désactive l'affichage du logo. |
-| `--no-animation` | Désactive les animations de chargement. |
-| `--case-sensitive` | Active la distinction entre majuscules et minuscules pour les modules. |
-| `--match-module-names` | Affiche les correspondances entre modules détectés et noms installés. |
+| `directory` | Specifies the folder to scan (default: current directory). |
+| `-f`, `--file-name` | Name of the generated requirements file (default: `requirements.txt`). |
+| `--ignore-files` | List of files to ignore. |
+| `--include-files` | List of files to include in the analysis. |
+| `--include-self` | Includes the current script in the analysis. |
+| `--ignore-modules` | List of modules to exclude. |
+| `--include-modules` | List of modules to manually add. |
+| `--include-modules-no-version` | Includes modules without specifying their version. |
+| `-v`, `--verbose` | Enables verbose mode (detailed execution output). |
+| `--version` | Displays the Requirements version. |
+| `--no-logo` | Disables the logo display. |
+| `--no-animation` | Disables loading animations. |
+| `--case-sensitive` | Enables case sensitivity for module names. |
+| `--match-module-names` | Shows matches between detected modules and installed names. |  
 
----
+---  
 
-## 🛠 Exemples d'utilisation
+## 🛠 Usage Examples  
 
-### 1️⃣ Génération simple
+### 1️⃣ Simple generation  
 
 ```sh
 python main.py 
-```
+```  
 
-Génère `requirements.txt` pour le projet dans le dossier courant.
+Generates `requirements.txt` for the project in the current directory.  
 
-### 2️⃣ Ignorer certains fichiers
+### 2️⃣ Ignore specific files  
 
 ```sh
 python -m requirements --ignore-files script_test.py config.py
-```
+```  
 
-### 3️⃣ Ajouter des modules spécifiques
+### 3️⃣ Add specific modules  
 
 ```sh
 python -m requirements --include-modules requests numpy pandas
-```
+```  
 
----
+---  
 
-## 🏆 Pourquoi utiliser Requirements ?
+## 🏆 Why Use Requirements?  
 
-✅ Automatisation complète 📌
+✅ Fully automated 📌  
 
-✅ Gain de temps 🚀
+✅ Time-saving 🚀  
 
-✅ Fini les oublis de modules ✅
+✅ No more missing modules ✅  
 
-✅ Compatible avec tous les projets Python
+✅ Compatible with all Python projects  
 
-Essayez-le et simplifiez-vous la vie ! 😃
+Try it out and make your life easier! 😃  
 
----
+---  
 
-## Contribution
+## Contribution  
 
-Consultez le fichier [CONTRIBUTING.md](.github\CONTRIBUER.md) pour savoir comment contribuer à ce projet.
+Check out the [CONTRIBUTING.md](.github/CONTRIBUER.md) file to learn how to contribute to this project.
