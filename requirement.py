@@ -25,7 +25,6 @@ class Requirement:
         """Récupère tous les fichiers Python dans le répertoire du projet."""
         python_files = []
         
-        
         if self.inclure_me:
             self.inclure_me_files = [*self.inclure_me_files, __file__]
         
@@ -33,6 +32,8 @@ class Requirement:
             for file in files:
                 if file.endswith(".py"):
                     if self.ignore_files and file in self.ignore_files:
+                        if self.verbose:
+                            print(f"ignorer: {file}")
                         continue
                     
                     python_files.append(join(root, file))
@@ -41,9 +42,13 @@ class Requirement:
             for file in self.inclure_fichiers:
                 if Path(file).is_file():
                     python_files.append(file)
+                    if self.verbose:
+                        print(f"ajouter: {file}")
                     
         if self.inclure_me:
             python_files.extend(self.inclure_me_files)
+            if self.verbose:
+                print("inclure me")
             
         return python_files
     
@@ -59,17 +64,27 @@ class Requirement:
                     module = match.group(1).split(".")[0]  # Prend uniquement le module principal
                     
                     if module in self.ignore_modules:
+                        if self.verbose:
+                            print(f"ignorer: {module}")
                         continue
+                    
                     imports.add(module)
+                    if self.verbose:
+                        print(f"importé: {module}")
         
         if self.inclure_modules:
             imports.update(self.inclure_modules)
+            if self.verbose:
+                print("inclure modules")
+            
         return imports
     
     def extract_imports(self, files):
         """Extrait les noms des modules importés dans une liste de fichiers Python."""
         all_imports = set()
         for file in files:
+            if self.verbose:
+                print(f"traitement: {file}")
             imports = self.extract_import(file)
             all_imports.update(imports)
         return all_imports
@@ -87,6 +102,9 @@ class Requirement:
                 
             if mod not in standard_libs:
                 third_party.add(standard_libs.get(mod, mod))
+                
+                if self.verbose:
+                    print(f"tier: {mod}")
                 
         return third_party
     
@@ -108,13 +126,23 @@ class Requirement:
                 if '_' in mod or '-' in mod:
                     if name in [mod.replace("_", "-"), mod.replace("-", "_")]:
                         modules[mod_index] = names_mod[_]
+                        
+                        if self.verbose:
+                            print(f"correspondance: {mod} -> {names_mod[_]}")
                         break
+                    
                 if mod.capitalize() in name:
                     modules[mod_index] = names_mod[_]
+                    
+                    if self.verbose:
+                        print(f"correspondance: {mod} -> {names_mod[_]}")
                     break
                 
                 if mod in name:
                     modules[mod_index] = names_mod[_]
+                    
+                    if self.verbose:
+                        print(f"correspondance: {mod} -> {names_mod[_]}")
                     break
         return modules
             
@@ -125,12 +153,20 @@ class Requirement:
         
         for mod in modules:
             if mod in self.ignore_modules:
+                if self.verbose:
+                    print(f"ignorer: {mod}")
                 continue
             
             if mod in self.installed_packages:
                 module_versions[mod] = self.installed_packages.get(mod)
+                
+                if self.verbose:
+                    print(f"version: {mod} -> {self.installed_packages.get(mod)}")
             elif self.inclure_modules_no_version:
                 module_versions[mod] = "0.0.0"
+                
+                if self.verbose:
+                    print(f"version: {mod} -> 0.0.0")
                 
         return module_versions
 

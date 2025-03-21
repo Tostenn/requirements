@@ -57,8 +57,6 @@ if not options.no_annimation:
     imports = set()
     with alive_bar(len(files), title="Analyse des fichiers Python") as bar:
         for file in files:
-            if options.verbose:
-                print(f"traitement: [green bold]{file}[/green bold]")
                 
             imports.update(req.extract_import(file))
             bar.text = f"Analyse du fichier: {file}"
@@ -74,9 +72,9 @@ if not options.no_annimation:
     
     with alive_bar(len(funcs), title="Génération du fichier requirements.txt") as bar:
         for func in funcs:
-            third_party = funcs[func](imports)
             if options.verbose:
-                print(f"✅ {func}")
+                print(func)
+            third_party = funcs[func](imports)
                 
             bar.text = f"{func}"
             bar()
