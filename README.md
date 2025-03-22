@@ -91,6 +91,33 @@ Try it out and make your life easier! 😃
 
 ---  
 
+
+## 🔍 What’s the Difference Between `pip freeze` and Requirements?  
+
+Many developers use `pip freeze > requirements.txt` to generate a list of dependencies. However, this method has some limitations:  
+
+1️⃣ **Global Environment vs. Project-Specific**  
+   - `pip freeze` lists **all** installed libraries in the current environment, even those not used in the project.  
+   - `Requirements`, on the other hand, scans the code and detects only the **actually imported** modules.  
+
+2️⃣ **Dependency Versions**  
+   - `pip freeze` captures the exact installed version, which can cause issues if it’s not compatible with other environments.  
+   - `Requirements` allows you to include or exclude versions and provides options to adjust the output according to your needs. `(future)`  
+
+3️⃣ **Advanced Customization**  
+   - With `Requirements`, you can ignore specific files, manually add modules, exclude unnecessary dependencies, and more using various options.  
+
+📌 **Example Usage**  
+```sh
+# Using pip freeze (captures all environment dependencies)
+pip freeze > requirements.txt
+
+# Using Requirements (analyzes only the current project)
+python main.py my_project/ --ignore-files tests.py --include-modules requests
+```
+
+In short, `pip freeze` is ideal in a dedicated environment, while `Requirements` gives you more control to generate a cleaner and more tailored requirements file for your project. 🚀
+
 ## Contribution  
 
 Check out the [CONTRIBUTING.md](.github/CONTRIBUER.md) file to learn how to contribute to this project.
