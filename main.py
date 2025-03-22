@@ -32,7 +32,7 @@ parser.add_argument("--include-modules-no-version", action="store_true", help="I
 
 # Display options
 parser.add_argument("-v", "--verbose", action="store_true", help="Enable detailed output (verbose mode).")
-parser.add_argument("--version", action="version", version="%(prog)s 1.0", help="Display the program version and exit.")
+parser.add_argument("--version", action="version", version="%(prog)s 1.0.x", help="Display the program version and exit.")
 parser.add_argument("--no-logo", action="store_true", help="Disable the logo display.")
 
 # Processing options
